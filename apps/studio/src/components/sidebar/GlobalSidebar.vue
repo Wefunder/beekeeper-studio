@@ -2,8 +2,8 @@
     <div class="global-items">
       <a
         href=""
-        @click.prevent="click('tables')"
         class="nav-item selectable"
+        @click.prevent="click('tables')"
         :class="{ active: activeItem === 'tables'}"
         title="Database"
       >
@@ -11,8 +11,17 @@
       </a>
       <a
         href=""
-        @click.prevent="click('queries')"
         class="nav-item selectable"
+        @click.prevent="click('project')"
+        :class="{ active: activeItem === 'project'}"
+        v-if="isWefunderDB"
+      >
+        <span class="material-icons">dashboard</span>
+      </a>
+      <a
+        href=""
+        class="nav-item selectable"
+        @click.prevent="click('queries')"
         :class="{ active: activeItem === 'queries'}"
         title="Saved Queries"
       >
@@ -20,8 +29,8 @@
       </a>
       <a
         href=""
-        @click.prevent="click('history')"
         class="nav-item selectable"
+        @click.prevent="click('history')"
         :class="{ active: activeItem === 'history'}"
         title="Run History"
       >
@@ -33,7 +42,7 @@
 
 <script>
   export default {
-    props: ['activeItem'],
+    props: ['activeItem', 'isWefunderDB'],
     components: { },
     computed: {
     },

@@ -218,6 +218,7 @@ const store = new Vuex.Store<State>({
       }
     },
     updateConnection(state, {connection, database}) {
+      console.dir(connection)
       state.connection = connection
       state.database = database
     },

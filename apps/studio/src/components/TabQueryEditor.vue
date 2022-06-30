@@ -637,6 +637,11 @@ import { FavoriteQuery } from '@/common/appdb/models/favorite_query'
         this.unsavedText = text
         this.editor.setValue(text)
       },
+      addText(text) {
+        const finalText = this.unsavedText += text
+        console.dir(finalText)
+        this.editor.setValue(finalText)
+      },
       escapeRegExp(string) {
         return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
       },
@@ -777,14 +782,11 @@ import { FavoriteQuery } from '@/common/appdb/models/favorite_query'
         this.query.text = "select * from foo"
       }
     },
+    beforeDestroy() {
+      if (this.split) this.split.destroy()
+    },
     mounted() {
       if (this.shouldInitialize) this.initialize()
-
-    },
-    beforeDestroy() {
-      if(this.split) {
-        this.split.destroy()
-      }
     },
   }
 </script>

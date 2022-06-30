@@ -878,6 +878,11 @@ export async function getPrimaryKeys(conn: HasPool, _database: string, table: st
   const version = await getVersion(conn)
   const tablename = PD.escapeString(tableName(table, schema), true)
   const psqlQuery = `
+    WITH RECURSIVE parents AS (
+      SELECT a.inhparent FROM pg_inherits a WHERE a.inhrelid = ${tablename}::regclass
+      UNION
+      SELECT b.inhparent FROM pg_inherits b INNER JOIN parents ON (b.inhrelid = parents.inhparent)
+    )
     SELECT
       a.attname as column_name,
       format_type(a.atttypid, a.atttypmod) AS data_type,
@@ -886,6 +891,7 @@ export async function getPrimaryKeys(conn: HasPool, _database: string, table: st
     JOIN   pg_attribute a ON a.attrelid = i.indrelid
                         AND a.attnum = ANY(i.indkey)
     WHERE  i.indrelid = ${tablename}::regclass
+       OR  i.indrelid IN (SELECT inhparent FROM parents)
     AND    i.indisprimary
     ORDER BY a.attnum
   `

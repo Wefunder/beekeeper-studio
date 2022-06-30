@@ -488,7 +488,7 @@ export default Vue.extend({
           const tooltip = () => {
             if (keyDatas.length == 1)
               return `View record in ${keyDatas[0].toTable}`
-            else 
+            else
               return `View records in ${(keyDatas.map(item => item.toTable).join(', ') as string).replace(/, (?![\s\S]*, )/, ', or ')}`
           }
           let clickMenu = null;
@@ -553,7 +553,7 @@ export default Vue.extend({
         this.filterMode === FILTER_MODE_BUILDER &&
         this.filter.type && this.filter.field && this.filter.value
       ) {
-        
+
         return [this.filter]
       } else {
         return null
@@ -682,9 +682,8 @@ export default Vue.extend({
       log.info("initializing tab ", this.tab.title, this.tab.tabType)
       this.initialized = true
       this.filter.field = this.table?.columns[0]?.columnName
-      if (this.initialFilter) {
-        this.filter = _.clone(this.initialFilter)
-      }
+      if (this.initialFilter) this.filter = _.clone(this.initialFilter)
+
       this.fetchTableLength()
       this.resetPendingChanges()
       await this.$store.dispatch('updateTableColumns', this.table)

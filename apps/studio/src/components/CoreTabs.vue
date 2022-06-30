@@ -34,7 +34,14 @@
         :class="{active: (activeTab === tab)}"
         v-show="activeTab === tab"
       >
-        <QueryEditor v-if="tab.type === 'query'" :active="activeTab === tab" :tab="tab" :tabId="tab.id" :connection="connection"></QueryEditor>
+        <QueryEditor
+          v-if="tab.type === 'query'"
+          :active="activeTab === tab"
+          :tab="tab"
+          :tabId="tab.id"
+          :connection="connection"
+          ref="queryEditor"
+        />
         <tab-with-table v-if="tab.type === 'table'" :tab="tab" @close="close">
           <template v-slot:default="slotProps">
             <TableTable
@@ -56,8 +63,13 @@
             ></TableProperties>
           </template>
         </tab-with-table>
-        <TableBuilder v-if="tab.type === 'table-builder'" :active="activeTab === tab" :tab="tab" :tabId="tab.id" :connection="connection"></TableBuilder>
-
+        <TableBuilder
+          v-if="tab.type === 'table-builder'"
+          :active="activeTab === tab"
+          :tab="tab"
+          :tabId="tab.id"
+          :connection="connection"
+        />
       </div>
     </div>
   </div>
@@ -93,7 +105,7 @@ import TabWithTable from './common/TabWithTable.vue';
       Draggable,
       ShortcutHints,
       TableBuilder,
-        TabWithTable,
+      TabWithTable,
     },
     data() {
       return {
@@ -125,8 +137,10 @@ import TabWithTable from './common/TabWithTable.vue';
           { event: AppEvent.createTable, handler: this.openTableBuilder},
           { event: 'historyClick', handler: this.createQueryFromItem},
           { event: AppEvent.loadTable, handler: this.openTable },
+          { event: AppEvent.loadRoutine, handler: this.loadRoutine },
           { event: AppEvent.openTableProperties, handler: this.openTableProperties},
           { event: 'loadSettings', handler: this.openSettings },
+          { event: 'loadQuery', handler: this.loadQuery },
           { event: 'loadTableCreate', handler: this.loadTableCreate },
           { event: 'loadRoutineCreate', handler: this.loadRoutineCreate },
           { event: 'favoriteClick', handler: this.favoriteClick },
@@ -190,7 +204,6 @@ import TabWithTable from './common/TabWithTable.vue';
           this.setActiveTab(this.tabItems[this.activeIdx + 1])
         }
       },
-
       previousTab() {
         if(this.activeTab == this.firstTab) {
           this.setActiveTab(this.lastTab)
@@ -266,6 +279,16 @@ import TabWithTable from './common/TabWithTable.vue';
         if (existing) return this.$store.dispatch('tabs/setActive', existing)
         this.addTab(tab)
       },
+      loadRoutine({ routine }) {
+        const args = routine.routineParams.map(item => `  ${item.name} ${item.type}`)
+        const command = `/* ${routine.name}(\n${args.join(",\n")}\n) */\nCALL ${routine.name}();`
+
+        if (this.activeTab?.tabType != "query") {
+          this.createQuery(`\n\n\n\n${command}\n\n\n\n`)
+        } else {
+          this.$refs.queryEditor.find(c => c.active)?.addText(`\n${command}\n`)
+        }
+      },
       openExportModal(options) {
         this.tableExportOptions = options
         this.showExportModal = true
@@ -322,7 +345,21 @@ import TabWithTable from './common/TabWithTable.vue';
         if (existing) return this.$store.dispatch('tabs/setActive', existing)
 
         this.addTab(tab)
+      },
+      loadQuery({ id, title, description, query }) {
+        const tab = new OpenTab('query')
+        tab.title = title
+        tab.queryId = id
+        tab.unsavedChanges = false
 
+        tab.unsavedQueryText = `\n-- ${title}\n`
+        description && (tab.unsavedQueryText += `-- ${description}\n`)
+        tab.unsavedQueryText += query
+
+        const existing = this.tabItems.find((t) => t.matches(tab))
+        if (existing) return this.$store.dispatch('tabs/setActive', existing)
+
+        this.addTab(tab)
       },
       createQueryFromItem(item) {
         this.createQuery(item.text)
