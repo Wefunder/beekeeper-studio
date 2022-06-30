@@ -278,8 +278,8 @@ async function getTableLength(conn, table) {
 
 
 export async function selectTop(conn, table, offset, limit, orderBy, filters) {
-
-  const queries = buildSelectTopQuery(table, offset, limit, orderBy, filters)
+  const columns = await listTableColumns(conn, null, table)
+  const queries = buildSelectTopQuery(table, offset, limit, orderBy, filters, 'total', columns)
 
   const { query, params } = queries
 
@@ -560,9 +560,21 @@ export async function updateValues(cli, updates) {
       // value looks like this: b'00000001'
       value = parseInt(update.value.split("'")[1], 2)
     }
+
+    const params = [value];
+    const whereList = []
+    update.primaryKeys.forEach(({ column, value }) => {
+      console.log('updateValues, column, value', column, value)
+      whereList.push(`${wrapIdentifier(column)} = ?`);
+      params.push(value);
+    })
+
+    const where = whereList.join(" AND ");
+
+
     return {
-      query: `UPDATE ${wrapIdentifier(update.table)} SET ${wrapIdentifier(update.column)} = ? WHERE ${wrapIdentifier(update.pkColumn)} = ?`,
-      params: [value, update.primaryKey]
+      query: `UPDATE ${wrapIdentifier(update.table)} SET ${wrapIdentifier(update.column)} = ? WHERE ${where}`,
+      params: params
     }
   })
 
@@ -574,11 +586,20 @@ export async function updateValues(cli, updates) {
   }
 
   const returnQueries = updates.map(update => {
+
+    const params = [];
+    const whereList = []
+    update.primaryKeys.forEach(({ column, value }) => {
+      console.log('updateValues, column, value', column, value)
+      whereList.push(`${wrapIdentifier(column)} = ?`);
+      params.push(value);
+    })
+
+    const where = whereList.join(" AND ");
+
     return {
-      query: `select * from ${wrapIdentifier(update.table)} where ${wrapIdentifier(update.pkColumn)} = ?`,
-      params: [
-        update.primaryKey
-      ]
+      query: `select * from ${wrapIdentifier(update.table)} where ${where}`,
+      params: params
     }
   })
 
