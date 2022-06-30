@@ -630,9 +630,8 @@ export default Vue.extend({
       log.info("initializing tab ", this.tab.title, this.tab.tabType)
       this.initialized = true
       this.filter.field = this.table?.columns[0]?.columnName
-    if (this.initialFilter) {
-        this.filter = _.clone(this.initialFilter)
-      }
+      if (this.initialFilter) this.filter = _.clone(this.initialFilter)
+
       this.fetchTableLength()
       this.resetPendingChanges()
       await this.$store.dispatch('updateTableColumns', this.table)

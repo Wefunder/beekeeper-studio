@@ -5,11 +5,10 @@
       @selected="click"
       v-on="$listeners"
       :activeItem="activeItem"
+      :isWefunderDB="isWefunderDB"
     ></global-sidebar>
 
     <div class="tab-content">
-
-
       <!-- Tables -->
       <div
         class="tab-pane"
@@ -21,12 +20,23 @@
         <table-list></table-list>
       </div>
 
+      <!-- Project -->
+      <div
+        v-if="isWefunderDB"
+        class="tab-pane"
+        id="tab-project"
+        :class="tabClasses('project')"
+        v-show="activeItem === 'project'"
+      >
+        <project-list></project-list>
+      </div>
+
       <!-- History -->
       <div
         class="tab-pane"
         id="tab-history"
-        v-show="activeItem === 'history'"
         :class="tabClasses('history')"
+        v-show="activeItem === 'history'"
       >
         <history-list></history-list>
       </div>
@@ -51,6 +61,7 @@
   import GlobalSidebar from './GlobalSidebar'
   import TableList from './core/TableList'
   import HistoryList from './core/HistoryList'
+  import ProjectList from './core/ProjectList'
   import FavoriteList from './core/FavoriteList'
   import DatabaseDropdown from './core/DatabaseDropdown'
 
@@ -58,7 +69,14 @@
 
   export default {
     props: ['sidebarShown'],
-    components: { TableList, DatabaseDropdown, HistoryList, GlobalSidebar, FavoriteList},
+    components: {
+      TableList,
+      DatabaseDropdown,
+      HistoryList,
+      ProjectList,
+      GlobalSidebar,
+      FavoriteList,
+    },
     data() {
       return {
         tableLoadError: null,
@@ -82,6 +100,9 @@
           .filter((item) => item.name.includes(this.filterQuery))
           .value()
         return _.concat(startsWithFilter, containsFilter)
+      },
+      isWefunderDB() {
+        return this.connection.isWefunderDB()
       },
       ...mapState(['tables', 'connection', 'database']),
     },

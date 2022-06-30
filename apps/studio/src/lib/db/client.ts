@@ -166,6 +166,9 @@ export class DBConnection {
   async currentDatabase() {
     return this.database.database
   }
+
+  // project specific
+  isWefunderDB = isWefunderDB.bind(null, this.server, this.database)
 }
 
 export function createConnection(server: IDbConnectionServer, database: IDbConnectionDatabase ) {
@@ -481,4 +484,8 @@ function checkIsConnected(_server: IDbConnectionServer, database: IDbConnectionD
   if (database.connecting || !database.connection) {
     throw new Error('There is no connection available.');
   }
+}
+
+function isWefunderDB(_server: IDbConnectionServer, database: IDbConnectionDatabase) {
+  return database.database === 'd5of0ou04b2aas';
 }
