@@ -3,8 +3,8 @@
     <a class="list-item-btn" role="button" v-bind:class="{'active': selected,'open': showArgs }">
       <span class="btn-fab open-close" @mousedown.prevent="toggleArgs" @contextmenu.stop.prevent="" >
         <i v-if="displayParams.length > 0" class="dropdown-icon material-icons">keyboard_arrow_right</i>
-      </span>      
-      <span class="item-wrapper flex flex-middle expand">
+      </span>
+      <span class="item-wrapper flex flex-middle expand" @dblclick.prevent="openRoutine">
         <i :title="title" :class="iconClass" class="item-icon material-icons">functions</i>
         <span class="table-name truncate" :title="routine.name">{{routine.name}}</span>
       </span>
@@ -46,7 +46,12 @@ import { RoutineTypeNames } from '@/lib/db/models'
     data() {
       return {
         showArgs: false,
-        selected: false
+        selected: false,
+        clickState: {
+          timer: null,
+          openClicks: 0,
+          delay: 500
+        }
       }
     },
     watch: {
@@ -98,7 +103,17 @@ import { RoutineTypeNames } from '@/lib/db/models'
       },
       createRoutine() {
         this.$root.$emit('loadRoutineCreate', this.routine)
-      }
+      },
+      openRoutine() {
+        if (this.clickState.openClicks > 0) {
+          return
+        }
+        this.$root.$emit("loadRoutine", {routine: this.routine});
+        this.clickState.openClicks++;
+        this.clickState.timer = setTimeout(() => {
+          this.clickState.openClicks = 0
+        }, this.clickState.delay);
+      },
     }
 	}
 </script>
