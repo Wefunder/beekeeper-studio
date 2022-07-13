@@ -1038,14 +1038,18 @@ async function insertRows(cli: any, rawInserts: TableInsert[]) {
     const result = { ...insert}
     const columns = columnsList[idx]
     result.data = result.data.map((obj) => {
-      return _.mapValues(obj, (value, key) => {
+      const record = _.mapValues(obj, (value, key) => {
         const column = columns.find((c) => c.columnName === key)
-        if (column && column.dataType.startsWith('_')) {
+        if (_.isNil(value)) {
+          return null
+        } else if (column && column.dataType.startsWith('_')) {
           return JSON.parse(value)
         } else {
           return value
         }
       })
+
+      return _.omitBy(record, _.isNil)
     })
     return result
   })
