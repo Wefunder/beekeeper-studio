@@ -281,7 +281,8 @@ import TabWithTable from './common/TabWithTable.vue';
       },
       loadRoutine({ routine }) {
         const args = routine.routineParams.map(item => `  ${item.name} ${item.type}`)
-        const command = `/* ${routine.name}(\n${args.join(",\n")}\n) */\nCALL ${routine.name}();`
+        const prefix = routine.type === 'function' ? 'SELECT' : 'CALL'
+        const command = `/* ${routine.name}(\n${args.join(",\n")}\n) */\n${prefix} ${routine.name}();`
 
         if (this.activeTab?.tabType != "query") {
           this.createQuery(`\n\n\n\n${command}\n\n\n\n`)
