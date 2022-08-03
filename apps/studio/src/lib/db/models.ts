@@ -42,7 +42,7 @@ export interface TableIndex {
   name: string
   columns: IndexedColumn[]
   unique: boolean
-  primary: boolean  
+  primary: boolean
 }
 
 export interface TableTrigger {
@@ -77,6 +77,7 @@ export interface ExtendedTableColumn extends SchemaItem {
   ordinalPosition: number
   schemaName?: string
   tableName: string
+  array?: boolean
 }
 
 export interface PrimaryKeyColumn {

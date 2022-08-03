@@ -437,8 +437,16 @@ export default Vue.extend({
           this.defaultColumnWidth(slimDataType, globals.bigTableColumnWidth) :
           undefined
 
+        // column filling extra hints
+        let extra = ''
+        extra += (column.array) ? '[]' : ''
+        extra += (column.nullable || column.defaultValue) ? '' : '*'
+
         const formatter = () => {
-          return `<span class="tabletable-title">${escapeHtml(column.columnName)} <span class="badge">${escapeHtml(slimDataType)}</span></span>`
+          return `<span class="tabletable-title">
+            ${escapeHtml(column.columnName)}
+            <span class="badge">${escapeHtml(slimDataType)}${extra}</span>
+          </span>`
         }
 
         let headerTooltip = `${column.columnName} ${column.dataType}`
@@ -795,8 +803,10 @@ export default Vue.extend({
         case 'tsvector':
         case '_text':
           return 'textarea'
-        case 'bool': return 'select'
-        default: return ne
+        case 'bool':
+          return 'select'
+        default:
+          return ne
       }
     },
     fkClick(_e, cell, toTable = null, toColumn = null) {
@@ -1151,24 +1161,25 @@ export default Vue.extend({
               orderBy,
               filters,
               this.table.schema
-            );
+            )
             if (_.xor(response.fields, this.table.columns.map(c => c.columnName)).length > 0) {
               log.debug('table has changed, updating')
               await this.$store.dispatch('updateTableColumns', this.table)
             }
 
-            const r = response.result;
+            const r = response.result
             this.response = response
             this.resetPendingChanges()
             this.clearQueryError()
 
             // fill internal index column with primary keys
             r.forEach(row => {
-              const primaryValues = this.primaryKeys.map(key => row[key]);
-              row[this.internalIndexColumn] = primaryValues.join(",");
+              const primaryValues = this.primaryKeys.map(key => row[key])
+              row[this.internalIndexColumn] = primaryValues.join(",")
             });
 
-            const data = this.dataToTableData({ rows: r }, this.tableColumns);
+            const data = this.dataToTableData({ rows: r }, this.tableColumns)
+            console.dir(data)
             this.data = Object.freeze(data)
             this.lastUpdated = Date.now()
             resolve({

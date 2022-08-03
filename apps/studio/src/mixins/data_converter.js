@@ -13,9 +13,7 @@ export default {
               ];
             */
           const columnNamesOnly = columns.map((c) => c.field)
-          return data.rows.map((row) => {
-          return _.pick(row, columnNamesOnly)
-          })
+          return data.rows.map((row) => _.pick(row, columnNamesOnly))
         },
         extractColumns(data) {
             // columns here

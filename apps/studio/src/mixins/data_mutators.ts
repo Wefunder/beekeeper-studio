@@ -35,9 +35,11 @@ export default {
         return nullValue
       }
 
-      let cellValue = cell.getValue().toString();
-      if (_.isArray(cell.getValue())) {
-        cellValue = cell.getValue().map((v) => v.toString()).join(", ")
+      let cellValue = cell.getValue()
+      if (_.isArray(cellValue)) {
+        cellValue = cellValue.map((v) => v.toString()).join(", ")
+      } else {
+        cellValue = cellValue.toString()
       }
       cellValue = cellValue.replace(/\n/g, ' ↩ ');
       cellValue = escapeHtml(cellValue);
